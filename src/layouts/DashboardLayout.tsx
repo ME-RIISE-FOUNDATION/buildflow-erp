@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-950 via-secondary-900 to-primary-950">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-950 via-secondary-900 to-primary-950 flex">
       {/* Mobile Sidebar Backdrop */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -82,7 +82,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         variants={sidebarVariants}
         animate={sidebarOpen ? 'open' : 'closed'}
         transition={{ duration: 0.3 }}
-        className="fixed left-0 top-0 h-screen w-80 glass border-r border-white/10 z-50 md:static md:translate-x-0"
+        className="fixed left-0 top-0 h-screen w-80 glass border-r border-white/10 z-50 md:static md:w-80 md:translate-x-0 flex flex-col"
       >
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
@@ -142,7 +142,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </motion.div>
 
       {/* Main Content */}
-      <div className="md:ml-0">
+      <div className="flex-1 flex flex-col md:ml-0 w-full md:w-auto">
         {/* Top Navigation */}
         <div className="glass border-b border-white/10 sticky top-0 z-40 backdrop-blur-xl">
           <div className="flex items-center justify-between p-4">
@@ -150,7 +150,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-secondary-800/50 rounded-lg text-secondary-300 hover:text-white transition-all"
+              className="p-2 hover:bg-secondary-800/50 rounded-lg text-secondary-300 hover:text-white transition-all md:hidden"
             >
               {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </motion.button>
@@ -176,7 +176,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Page Content */}
-        <main className="p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {children}
         </main>
       </div>
