@@ -78,35 +78,51 @@ export default function MaterialManagement({ projectId }: MaterialManagementProp
   })
 
   const handleAddMaterial = () => {
-    if (formData.name && formData.quantity && formData.cost_per_unit) {
-      const quantity = parseFloat(formData.quantity)
-      const cost_per_unit = parseFloat(formData.cost_per_unit)
-      const used_quantity = parseFloat(formData.used_quantity) || 0
+    const quantity = parseFloat(formData.quantity)
+    const cost_per_unit = parseFloat(formData.cost_per_unit)
 
-      const newMaterial: Material = {
-        id: editingId || Date.now(),
-        name: formData.name,
-        category: formData.category,
-        quantity,
-        unit: formData.unit,
-        cost_per_unit,
-        total_cost: quantity * cost_per_unit,
-        supplier: formData.supplier,
-        purchase_date: formData.purchase_date,
-        used_quantity,
-        remaining_quantity: quantity - used_quantity,
-      }
-
-      if (editingId) {
-        setMaterials(materials.map(m => m.id === editingId ? newMaterial : m))
-        setEditingId(null)
-      } else {
-        setMaterials([...materials, newMaterial])
-      }
-
-      resetForm()
-      setShowModal(false)
+    if (!formData.name || !formData.quantity || !formData.cost_per_unit) {
+      alert('⚠️ Please fill all required fields (Name, Quantity, Cost per Unit)')
+      return
     }
+
+    if (isNaN(quantity) || quantity <= 0) {
+      alert('⚠️ Quantity must be a valid positive number')
+      return
+    }
+
+    if (isNaN(cost_per_unit) || cost_per_unit <= 0) {
+      alert('⚠️ Cost per Unit must be a valid positive number')
+      return
+    }
+
+    const used_quantity = parseFloat(formData.used_quantity) || 0
+
+    const newMaterial: Material = {
+      id: editingId || Date.now(),
+      name: formData.name,
+      category: formData.category,
+      quantity,
+      unit: formData.unit,
+      cost_per_unit,
+      total_cost: quantity * cost_per_unit,
+      supplier: formData.supplier,
+      purchase_date: formData.purchase_date,
+      used_quantity,
+      remaining_quantity: quantity - used_quantity,
+    }
+
+    if (editingId) {
+      setMaterials(materials.map(m => m.id === editingId ? newMaterial : m))
+      setEditingId(null)
+      alert('✅ Material updated successfully!')
+    } else {
+      setMaterials([...materials, newMaterial])
+      alert('✅ Material added successfully!')
+    }
+
+    resetForm()
+    setShowModal(false)
   }
 
   const handleEdit = (material: Material) => {
@@ -126,6 +142,7 @@ export default function MaterialManagement({ projectId }: MaterialManagementProp
 
   const handleDelete = (id: number) => {
     setMaterials(materials.filter(m => m.id !== id))
+    alert('✅ Material deleted successfully!')
   }
 
   const resetForm = () => {
@@ -184,7 +201,7 @@ export default function MaterialManagement({ projectId }: MaterialManagementProp
         </motion.div>
         <motion.div className="card bg-gradient-to-br from-accent-600/10 to-accent-400/10">
           <p className="text-secondary-400 text-sm mb-2">Total Cost</p>
-          <p className="text-3xl font-bold text-accent-400">${(totalMaterialCost / 1000).toFixed(1)}K</p>
+          <p className="text-3xl font-bold text-accent-400">₹{(totalMaterialCost / 100000).toFixed(1)}L</p>
         </motion.div>
         <motion.div className="card bg-gradient-to-br from-green-600/10 to-green-400/10">
           <p className="text-secondary-400 text-sm mb-2">Used Items</p>
@@ -243,9 +260,9 @@ export default function MaterialManagement({ projectId }: MaterialManagementProp
                 <td className="py-4 px-6">
                   <span className="text-green-400 font-semibold">{material.remaining_quantity}</span>
                 </td>
-                <td className="py-4 px-6 text-secondary-400">${material.cost_per_unit.toFixed(2)}</td>
+                <td className="py-4 px-6 text-secondary-400">₹{material.cost_per_unit.toFixed(2)}</td>
                 <td className="py-4 px-6 font-semibold text-primary-400">
-                  ${material.total_cost.toLocaleString()}
+                  ₹{material.total_cost.toLocaleString()}
                 </td>
                 <td className="py-4 px-6 text-secondary-400 text-sm">{material.supplier}</td>
                 <td className="py-4 px-6 text-center">
@@ -357,7 +374,7 @@ export default function MaterialManagement({ projectId }: MaterialManagementProp
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary-300 mb-2">Cost Per Unit ($) *</label>
+                  <label className="block text-sm text-secondary-300 mb-2">Cost Per Unit (₹) *</label>
                   <input
                     type="number"
                     value={formData.cost_per_unit}

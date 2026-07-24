@@ -63,7 +63,7 @@ export default function EstimationPage() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           {[
-            { label: 'Total Estimated Cost', value: '$2.4M' },
+            { label: 'Total Estimated Cost', value: '₹2.4Cr' },
             { label: 'Estimation Accuracy', value: '94%' },
             { label: 'Active Estimations', value: '12' },
           ].map((stat, i) => (
@@ -106,7 +106,7 @@ export default function EstimationPage() {
                     {est.quantity} {est.unit}
                   </td>
                   <td className="py-4 px-6 font-semibold text-white">
-                    ${est.total.toLocaleString()}
+                    ₹{est.total.toLocaleString()}
                   </td>
                   <td className="py-4 px-6">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${

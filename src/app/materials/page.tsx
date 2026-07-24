@@ -81,10 +81,10 @@ export default function MaterialsPage() {
                     {material.quantity.toLocaleString()} {material.unit}
                   </td>
                   <td className="py-4 px-6 text-secondary-400">
-                    ${material.price.toFixed(2)}
+                    ₹{material.price.toFixed(2)}
                   </td>
                   <td className="py-4 px-6 font-semibold text-white">
-                    ${(material.quantity * material.price).toLocaleString()}
+                    ₹{(material.quantity * material.price).toLocaleString()}
                   </td>
                   <td className="py-4 px-6">
                     <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${

@@ -31,32 +31,47 @@ export default function CostEstimation({ projectId }: { projectId: number }) {
   })
 
   const handleAddEstimate = () => {
-    if (formData.description && formData.quantity && formData.unitPrice) {
-      const quantity = parseFloat(formData.quantity)
-      const unitPrice = parseFloat(formData.unitPrice)
-      const amount = quantity * unitPrice
+    const quantity = parseFloat(formData.quantity)
+    const unitPrice = parseFloat(formData.unitPrice)
 
-      const newEstimate: Estimate = {
-        id: editingId || Date.now(),
-        category: formData.category,
-        description: formData.description,
-        quantity,
-        unit: formData.unit,
-        unitPrice,
-        amount,
-      }
-
-      if (editingId) {
-        setEstimates(estimates.map(e => e.id === editingId ? newEstimate : e))
-        setEditingId(null)
-      } else {
-        setEstimates([...estimates, newEstimate])
-      }
-
-      setFormData({ category: 'Foundation', description: '', quantity: '', unit: 'cu.m', unitPrice: '' })
-      setShowModal(false)
-      alert('✅ Estimate added/updated successfully!')
+    if (!formData.description || !formData.quantity || !formData.unitPrice) {
+      alert('⚠️ Please fill all required fields (Description, Quantity, Unit Price)')
+      return
     }
+
+    if (isNaN(quantity) || quantity <= 0) {
+      alert('⚠️ Quantity must be a valid positive number')
+      return
+    }
+
+    if (isNaN(unitPrice) || unitPrice <= 0) {
+      alert('⚠️ Unit Price must be a valid positive number')
+      return
+    }
+
+    const amount = quantity * unitPrice
+
+    const newEstimate: Estimate = {
+      id: editingId || Date.now(),
+      category: formData.category,
+      description: formData.description,
+      quantity,
+      unit: formData.unit,
+      unitPrice,
+      amount,
+    }
+
+    if (editingId) {
+      setEstimates(estimates.map(e => e.id === editingId ? newEstimate : e))
+      setEditingId(null)
+      alert('✅ Estimate updated successfully!')
+    } else {
+      setEstimates([...estimates, newEstimate])
+      alert('✅ Estimate added successfully!')
+    }
+
+    setFormData({ category: 'Foundation', description: '', quantity: '', unit: 'cu.m', unitPrice: '' })
+    setShowModal(false)
   }
 
   const handleEdit = (estimate: Estimate) => {

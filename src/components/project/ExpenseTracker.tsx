@@ -30,27 +30,38 @@ export default function ExpenseTracker({ projectId }: { projectId: number }) {
   })
 
   const handleAddExpense = () => {
-    if (formData.date && formData.description && formData.amount) {
-      const newExpense: Expense = {
-        id: editingId || Date.now(),
-        date: formData.date,
-        description: formData.description,
-        category: formData.category,
-        amount: parseFloat(formData.amount),
-        status: formData.status,
-      }
+    const amount = parseFloat(formData.amount)
 
-      if (editingId) {
-        setExpenses(expenses.map(e => e.id === editingId ? newExpense : e))
-        setEditingId(null)
-      } else {
-        setExpenses([...expenses, newExpense])
-      }
-
-      setFormData({ date: '', description: '', category: 'Material', amount: '', status: 'Pending' })
-      setShowModal(false)
-      alert('✅ Expense added/updated successfully!')
+    if (!formData.date || !formData.description || !formData.amount) {
+      alert('⚠️ Please fill all required fields (Date, Description, Amount)')
+      return
     }
+
+    if (isNaN(amount) || amount <= 0) {
+      alert('⚠️ Amount must be a valid positive number')
+      return
+    }
+
+    const newExpense: Expense = {
+      id: editingId || Date.now(),
+      date: formData.date,
+      description: formData.description,
+      category: formData.category,
+      amount,
+      status: formData.status,
+    }
+
+    if (editingId) {
+      setExpenses(expenses.map(e => e.id === editingId ? newExpense : e))
+      setEditingId(null)
+      alert('✅ Expense updated successfully!')
+    } else {
+      setExpenses([...expenses, newExpense])
+      alert('✅ Expense added successfully!')
+    }
+
+    setFormData({ date: '', description: '', category: 'Material', amount: '', status: 'Pending' })
+    setShowModal(false)
   }
 
   const handleEdit = (expense: Expense) => {

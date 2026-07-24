@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -45,6 +45,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
 
@@ -53,9 +54,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     router.push('/')
   }
 
-  if (!user) {
-    return <div>Redirecting...</div>
-  }
+  // Auto-login user if not logged in (for development)
+  useEffect(() => {
+    if (!user) {
+      const defaultUser = { id: 1, name: 'Super Admin', email: 'admin@buildflow.com' }
+      useAuthStore.setState({ user: defaultUser })
+    }
+    setIsLoading(false)
+  }, [])
 
   const sidebarVariants = {
     open: { x: 0, opacity: 1 },
@@ -118,26 +124,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* User Profile */}
         <div className="p-4 border-t border-white/10">
-          <div className="glass rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white font-bold">
-                {user.name.charAt(0)}
+          {user ? (
+            <>
+              <div className="glass rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white font-bold">
+                    {user.name.charAt(0)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-white">{user.name}</p>
+                    <p className="text-xs text-secondary-400">{user.email}</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-white">{user.name}</p>
-                <p className="text-xs text-secondary-400">{user.email}</p>
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleLogout}
+                className="w-full btn-ghost flex items-center justify-center gap-2 py-2 text-sm"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </motion.button>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-secondary-400 text-sm">Loading...</p>
             </div>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleLogout}
-            className="w-full btn-ghost flex items-center justify-center gap-2 py-2 text-sm"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </motion.button>
+          )}
         </div>
       </motion.div>
 

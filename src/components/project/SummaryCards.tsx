@@ -84,31 +84,31 @@ export default function SummaryCards({ projectId }: SummaryCardProps) {
         <SummaryCard
           icon={DollarSign}
           label="Total Budget"
-          value={`$${(chartData.budget / 1000).toFixed(0)}K`}
+          value={`₹${(chartData.budget / 100000).toFixed(1)}L`}
           color="from-primary-600 to-primary-400"
         />
         <SummaryCard
           icon={TrendingUp}
           label="Total Expenses"
-          value={`$${(chartData.spent / 1000).toFixed(0)}K`}
+          value={`₹${(chartData.spent / 100000).toFixed(1)}L`}
           color="from-orange-600 to-orange-400"
         />
         <SummaryCard
           icon={Package}
           label="Material Cost"
-          value={`$${(chartData.material_cost / 1000).toFixed(0)}K`}
+          value={`₹${(chartData.material_cost / 100000).toFixed(1)}L`}
           color="from-accent-600 to-accent-400"
         />
         <SummaryCard
           icon={Users}
           label="Labour Cost"
-          value={`$${(chartData.labour_cost / 1000).toFixed(0)}K`}
+          value={`₹${(chartData.labour_cost / 100000).toFixed(1)}L`}
           color="from-purple-600 to-purple-400"
         />
         <SummaryCard
           icon={DollarSign}
           label="Remaining Budget"
-          value={`$${((chartData.budget - chartData.spent) / 1000).toFixed(0)}K`}
+          value={`₹${((chartData.budget - chartData.spent) / 100000).toFixed(1)}L`}
           color="from-green-600 to-green-400"
         />
         <SummaryCard
