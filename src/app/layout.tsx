@@ -18,8 +18,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-secondary-950 text-secondary-50 overflow-x-hidden`}>
+    <html lang="en" suppressHydrationWarning style={{ colorScheme: 'dark' }}>
+      <body
+        className={`${inter.className} overflow-x-hidden`}
+        style={{
+          background: 'linear-gradient(135deg, #020617 0%, #0f172a 100%)',
+          color: '#f1f5f9',
+          minHeight: '100vh',
+          margin: 0,
+          padding: 0,
+        }}
+      >
         {children}
         <Toaster position="top-right" theme="dark" />
       </body>

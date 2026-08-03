@@ -1,35 +1,44 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
-import { Briefcase, TrendingUp, CheckCircle, Clock } from 'lucide-react'
-import { api } from '@/lib/api'
+import { Briefcase, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 
 export default function ProjectsPage() {
-  const [stats, setStats] = useState({
-    total: 0,
-    completed: 0,
-    running: 0,
-    upcoming: 0,
-  })
-
-  useEffect(() => {
-    loadStats()
-  }, [])
-
-  const loadStats = async () => {
-    try {
-      const projects = await api.getProjects()
-      setStats({
-        total: projects.length,
-        completed: projects.filter((p: any) => p.status === 'completed').length,
-        running: projects.filter((p: any) => p.status === 'running').length,
-        upcoming: projects.filter((p: any) => p.status === 'upcoming').length,
-      })
-    } catch (error) {
-      console.error('Failed to load stats:', error)
-    }
+  // Mock data
+  const stats = {
+    total: 24,
+    completed: 10,
+    running: 9,
+    upcoming: 5,
   }
+
+  const mockProjects = [
+    {
+      id: 1,
+      name: 'AK Villa Project',
+      client: 'Mr. Sharma',
+      status: 'completed',
+      progress: 100,
+      budget: 500000,
+    },
+    {
+      id: 2,
+      name: 'Interior Design Work',
+      client: 'Mr. Kumar',
+      status: 'running',
+      progress: 65,
+      budget: 300000,
+    },
+    {
+      id: 3,
+      name: 'Commercial Building',
+      client: 'XYZ Corp',
+      status: 'running',
+      progress: 45,
+      budget: 2000000,
+    },
+  ]
 
   return (
     <motion.div
@@ -37,10 +46,11 @@ export default function ProjectsPage() {
       animate={{ opacity: 1 }}
       className="space-y-8"
     >
+      {/* Header */}
       <div>
         <h1 className="text-4xl font-bold text-white mb-2">Projects Overview</h1>
         <p className="text-secondary-400">
-          Select a project from the left sidebar to view its dashboard and manage details.
+          Manage and track all your construction projects
         </p>
       </div>
 
@@ -48,122 +58,113 @@ export default function ProjectsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <motion.div
           whileHover={{ scale: 1.05, y: -5 }}
-          className="card bg-gradient-to-br from-primary-600/10 to-primary-400/10"
+          className="bg-gradient-to-br from-secondary-800/50 via-secondary-900/50 to-secondary-900/30 border border-white/5 rounded-2xl p-6 backdrop-blur-xl"
         >
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-primary-600 to-primary-400">
-              <Briefcase className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-secondary-400 text-sm font-medium">Total Projects</h3>
+            <Briefcase className="w-5 h-5 text-primary-400" />
           </div>
-          <p className="text-secondary-400 text-sm mb-2">Total Projects</p>
           <p className="text-3xl font-bold text-white">{stats.total}</p>
+          <p className="text-xs text-secondary-400 mt-2">All time</p>
         </motion.div>
 
         <motion.div
           whileHover={{ scale: 1.05, y: -5 }}
-          className="card bg-gradient-to-br from-green-600/10 to-green-400/10"
+          className="bg-gradient-to-br from-green-600/20 via-secondary-900/50 to-secondary-900/30 border border-green-500/20 rounded-2xl p-6 backdrop-blur-xl"
         >
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-green-600 to-green-400">
-              <CheckCircle className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-green-400 text-sm font-medium">Completed</h3>
+            <CheckCircle className="w-5 h-5 text-green-400" />
           </div>
-          <p className="text-secondary-400 text-sm mb-2">Completed</p>
           <p className="text-3xl font-bold text-green-400">{stats.completed}</p>
+          <p className="text-xs text-green-500 mt-2">Finished projects</p>
         </motion.div>
 
         <motion.div
           whileHover={{ scale: 1.05, y: -5 }}
-          className="card bg-gradient-to-br from-blue-600/10 to-blue-400/10"
+          className="bg-gradient-to-br from-blue-600/20 via-secondary-900/50 to-secondary-900/30 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-xl"
         >
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-blue-400">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-blue-400 text-sm font-medium">Running</h3>
+            <TrendingUp className="w-5 h-5 text-blue-400" />
           </div>
-          <p className="text-secondary-400 text-sm mb-2">Running</p>
           <p className="text-3xl font-bold text-blue-400">{stats.running}</p>
+          <p className="text-xs text-blue-500 mt-2">In progress</p>
         </motion.div>
 
         <motion.div
           whileHover={{ scale: 1.05, y: -5 }}
-          className="card bg-gradient-to-br from-yellow-600/10 to-yellow-400/10"
+          className="bg-gradient-to-br from-yellow-600/20 via-secondary-900/50 to-secondary-900/30 border border-yellow-500/20 rounded-2xl p-6 backdrop-blur-xl"
         >
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-yellow-600 to-yellow-400">
-              <Clock className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-yellow-400 text-sm font-medium">Upcoming</h3>
+            <Clock className="w-5 h-5 text-yellow-400" />
           </div>
-          <p className="text-secondary-400 text-sm mb-2">Upcoming</p>
           <p className="text-3xl font-bold text-yellow-400">{stats.upcoming}</p>
+          <p className="text-xs text-yellow-500 mt-2">Not started</p>
         </motion.div>
       </div>
 
-      {/* Welcome Message */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="card bg-gradient-to-br from-primary-600/20 to-accent-600/20 border-primary-500/30"
-      >
-        <h2 className="text-2xl font-bold text-white mb-4">Welcome to Projects Module</h2>
-        <div className="space-y-3 text-secondary-300">
-          <p>
-            ✨ <strong>Click on any project card in the left sidebar</strong> to open its detailed dashboard.
-          </p>
-          <p>
-            📋 Each project has its own independent dashboard with sections for:
-          </p>
-          <ul className="list-disc list-inside space-y-2 ml-4">
-            <li>Customer & Owner Information</li>
-            <li>Property Measurements & Site Address</li>
-            <li>Material Management (Add, Edit, Delete materials)</li>
-            <li>Cost Estimation & Expense Tracking</li>
-            <li>Construction Progress Tracking</li>
-            <li>Documents & Reports Management</li>
-            <li>Project Notes</li>
-          </ul>
-          <p className="mt-4">
-            🚀 <strong>Click "+ New Project"</strong> in the left sidebar to create a new project.
-          </p>
-        </div>
-      </motion.div>
+      {/* Projects List */}
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-6">Recent Projects</h2>
+        <div className="space-y-4">
+          {mockProjects.map((project, idx) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              whileHover={{ x: 4 }}
+              className="bg-gradient-to-br from-secondary-800/50 via-secondary-900/50 to-secondary-900/30 border border-white/5 rounded-2xl p-6 backdrop-blur-xl hover:border-white/10 transition-all"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-white">{project.name}</h3>
+                  <p className="text-secondary-400 text-sm mt-1">Client: {project.client}</p>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    project.status === 'completed'
+                      ? 'bg-green-500/20 text-green-400'
+                      : project.status === 'running'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : 'bg-yellow-500/20 text-yellow-400'
+                  }`}
+                >
+                  {project.status === 'completed'
+                    ? '✓ Completed'
+                    : project.status === 'running'
+                    ? '⚙ Running'
+                    : '⏱ Upcoming'}
+                </span>
+              </div>
 
-      {/* Features Highlight */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <div className="card">
-          <h3 className="text-lg font-bold text-white mb-4">📊 Material Management</h3>
-          <p className="text-secondary-400 mb-4">
-            Comprehensive material tracking with:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-secondary-300 text-sm">
-            <li>Add, Edit, Delete materials</li>
-            <li>Track quantity and pricing</li>
-            <li>Monitor used vs remaining stock</li>
-            <li>Supplier information</li>
-            <li>Real-time cost calculations</li>
-          </ul>
-        </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-secondary-400">Progress</span>
+                  <span className="font-semibold text-white">{project.progress}%</span>
+                </div>
+                <div className="w-full h-2 bg-secondary-700 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${project.progress}%` }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="h-full bg-gradient-to-r from-primary-600 to-accent-600"
+                  />
+                </div>
+              </div>
 
-        <div className="card">
-          <h3 className="text-lg font-bold text-white mb-4">💰 Financial Tracking</h3>
-          <p className="text-secondary-400 mb-4">
-            Complete financial overview with:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-secondary-300 text-sm">
-            <li>Total budget tracking</li>
-            <li>Expense categorization</li>
-            <li>Material vs Labour cost breakdown</li>
-            <li>Remaining budget calculation</li>
-            <li>Visual charts and analytics</li>
-          </ul>
+              <div className="mt-4 flex items-center gap-2 text-sm">
+                <Briefcase className="w-4 h-4 text-secondary-400" />
+                <span className="text-secondary-400">
+                  Budget: <span className="text-primary-400 font-semibold">₹{(project.budget / 100000).toFixed(1)}L</span>
+                </span>
+              </div>
+            </motion.div>
+          ))}
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   )
 }

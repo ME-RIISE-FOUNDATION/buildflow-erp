@@ -1,11 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
 import DashboardLayout from '@/layouts/DashboardLayout'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, X, Briefcase, Menu } from 'lucide-react'
-import { api } from '@/lib/api'
+import { Plus, X, Briefcase } from 'lucide-react'
 
 interface Project {
   id: number
@@ -21,31 +19,47 @@ export default function ProjectsLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projects, setProjects] = useState<Project[]>([
+    {
+      id: 1,
+      name: 'AK Villa Project',
+      client_name: 'Mr. Sharma',
+      status: 'completed',
+      progress: 100,
+      budget: 500000,
+    },
+    {
+      id: 2,
+      name: 'Interior Design Work',
+      client_name: 'Mr. Kumar',
+      status: 'running',
+      progress: 65,
+      budget: 300000,
+    },
+    {
+      id: 3,
+      name: 'Commercial Building',
+      client_name: 'XYZ Corp',
+      status: 'running',
+      progress: 45,
+      budget: 2000000,
+    },
+  ])
+
   const [showNewProjectModal, setShowNewProjectModal] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
     client_name: '',
     budget: '',
     status: 'upcoming',
   })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    loadProjects()
-  }, [])
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768
-      setIsMobile(mobile)
-      if (!mobile) {
-        setSidebarOpen(true)
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false)
       }
     }
     handleResize()
@@ -53,97 +67,60 @@ export default function ProjectsLayout({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const loadProjects = async () => {
-    try {
-      const data = await api.getProjects()
-      setProjects(data)
-    } catch (error) {
-      console.error('Failed to load projects:', error)
-    } finally {
-      setLoading(false)
+  const handleCreateProject = () => {
+    if (!formData.name.trim()) {
+      alert('⚠️ Please enter project name')
+      return
     }
-  }
-
-  const handleCreateProject = async () => {
-    if (formData.name && formData.client_name) {
-      try {
-        const newProject = await api.createProject({
-          name: formData.name,
-          client_id: 1,
-          status: formData.status,
-          budget: parseFloat(formData.budget) || 0,
-        })
-        setProjects([...projects, newProject])
-        setFormData({ name: '', client_name: '', budget: '', status: 'upcoming' })
-        setShowNewProjectModal(false)
-      } catch (error) {
-        console.error('Failed to create project:', error)
-      }
+    if (!formData.client_name.trim()) {
+      alert('⚠️ Please enter client name')
+      return
     }
-  }
 
-  const isDetailPage = pathname.includes('/projects/') && pathname !== '/projects'
+    const newProject: Project = {
+      id: Math.max(...projects.map(p => p.id), 0) + 1,
+      name: formData.name,
+      client_name: formData.client_name,
+      status: formData.status,
+      progress: 0,
+      budget: parseFloat(formData.budget) || 0,
+    }
+
+    setProjects([...projects, newProject])
+    setFormData({ name: '', client_name: '', budget: '', status: 'upcoming' })
+    setShowNewProjectModal(false)
+    alert('✅ Project created successfully!')
+  }
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 min-h-screen">
-        {/* Mobile Sidebar Toggle */}
-        {isMobile && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="fixed bottom-6 right-6 z-40 btn-primary p-4 rounded-full shadow-lg md:hidden"
-          >
-            {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </motion.button>
-        )}
-
-        {/* Mobile Overlay */}
-        <AnimatePresence>
-          {isMobile && sidebarOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 bg-black/50 z-30 md:hidden"
-            />
-          )}
-        </AnimatePresence>
-
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* Projects Sidebar */}
         <motion.div
-          initial={isMobile ? { x: -320 } : { x: 0 }}
-          animate={isMobile ? (sidebarOpen ? { x: 0 } : { x: -320 }) : { x: 0 }}
+          initial={{ x: -320 }}
+          animate={{ x: sidebarOpen ? 0 : -320 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className={`${
-            isDetailPage ? 'lg:w-72' : 'lg:w-96'
-          } w-80 flex-shrink-0 glass rounded-2xl border border-white/10 p-4 lg:p-6 overflow-y-auto max-h-[85vh] lg:max-h-none lg:sticky lg:top-0 fixed md:relative left-0 top-0 z-40 lg:z-auto`}
+          className="fixed lg:static left-0 top-24 z-40 w-80 lg:w-72 flex-shrink-0 bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl max-h-[calc(100vh-120px)] overflow-y-auto"
         >
           <div className="mb-6">
-            <h2 className="text-xl lg:text-2xl font-bold text-white mb-4 flex items-center gap-2">
-              <Briefcase className="w-5 h-5 lg:w-6 lg:h-6 text-primary-400" />
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-primary-400" />
               <span>Projects</span>
             </h2>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setShowNewProjectModal(true)
-                if (isMobile) setSidebarOpen(false)
-              }}
-              className="w-full btn-primary flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm lg:text-base"
+              onClick={() => setShowNewProjectModal(true)}
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors"
             >
-              <Plus className="w-4 h-4 lg:w-5 lg:h-5" />
+              <Plus className="w-4 h-4" />
               New Project
             </motion.button>
           </div>
 
           {/* Projects List */}
           <div className="space-y-3">
-            {loading ? (
-              <div className="text-center text-secondary-400 text-sm">Loading projects...</div>
-            ) : projects.length === 0 ? (
+            {projects.length === 0 ? (
               <div className="text-center text-secondary-400 text-sm py-8">No projects yet</div>
             ) : (
               projects.map((project) => (
@@ -153,29 +130,30 @@ export default function ProjectsLayout({
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     setSelectedProjectId(project.id)
-                    router.push(`/projects/${project.id}`)
-                    if (isMobile) setSidebarOpen(false)
+                    setSidebarOpen(false)
                   }}
-                  className={`w-full text-left p-3 lg:p-4 rounded-lg transition-all duration-300 ${
+                  className={`w-full text-left p-4 rounded-lg transition-all duration-300 ${
                     selectedProjectId === project.id
-                      ? 'bg-primary-600/30 border border-primary-500/50 shadow-glow'
+                      ? 'bg-primary-600/30 border border-primary-500/50'
                       : 'bg-secondary-800/50 border border-secondary-700/50 hover:bg-secondary-700/50'
                   }`}
                 >
                   <div className="mb-2">
-                    <p className="font-semibold text-white text-sm lg:text-base truncate">{project.name}</p>
+                    <p className="font-semibold text-white truncate">{project.name}</p>
                     <p className="text-xs text-secondary-400 truncate">{project.client_name}</p>
                   </div>
-                  <div className="mb-2">
+                  <div>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-xs text-secondary-400">Progress</span>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                        project.status === 'completed'
-                          ? 'bg-green-500/20 text-green-300'
-                          : project.status === 'running'
-                          ? 'bg-blue-500/20 text-blue-300'
-                          : 'bg-yellow-500/20 text-yellow-300'
-                      }`}>
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          project.status === 'completed'
+                            ? 'bg-green-500/20 text-green-300'
+                            : project.status === 'running'
+                            ? 'bg-blue-500/20 text-blue-300'
+                            : 'bg-yellow-500/20 text-yellow-300'
+                        }`}
+                      >
                         {project.status}
                       </span>
                     </div>
@@ -189,7 +167,6 @@ export default function ProjectsLayout({
                     </div>
                     <p className="text-xs text-secondary-400 mt-1">{project.progress}%</p>
                   </div>
-                  <p className="text-xs text-primary-300">Budget: ${(project.budget / 1000).toFixed(0)}K</p>
                 </motion.button>
               ))
             )}
@@ -211,57 +188,59 @@ export default function ProjectsLayout({
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="card max-w-md w-full relative"
+                className="bg-secondary-900/90 border border-white/10 rounded-2xl p-6 w-full max-w-md backdrop-blur-xl"
               >
-                <button
-                  onClick={() => setShowNewProjectModal(false)}
-                  className="absolute top-4 right-4 text-secondary-400 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
-                <h3 className="text-xl lg:text-2xl font-bold text-white mb-6">Create New Project</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-white">Create New Project</h3>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    onClick={() => setShowNewProjectModal(false)}
+                    className="text-secondary-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </motion.button>
+                </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs lg:text-sm text-secondary-300 mb-2">Project Name *</label>
+                    <label className="block text-sm text-secondary-300 mb-2">Project Name *</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Enter project name"
-                      className="w-full glass-sm rounded-lg px-3 lg:px-4 py-2 text-sm"
+                      className="w-full bg-secondary-800/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-secondary-500 focus:outline-none focus:border-primary-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs lg:text-sm text-secondary-300 mb-2">Client Name *</label>
+                    <label className="block text-sm text-secondary-300 mb-2">Client Name *</label>
                     <input
                       type="text"
                       value={formData.client_name}
                       onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
                       placeholder="Enter client name"
-                      className="w-full glass-sm rounded-lg px-3 lg:px-4 py-2 text-sm"
+                      className="w-full bg-secondary-800/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-secondary-500 focus:outline-none focus:border-primary-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs lg:text-sm text-secondary-300 mb-2">Budget ($)</label>
+                    <label className="block text-sm text-secondary-300 mb-2">Budget (₹)</label>
                     <input
                       type="number"
                       value={formData.budget}
                       onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                       placeholder="Enter budget"
-                      className="w-full glass-sm rounded-lg px-3 lg:px-4 py-2 text-sm"
+                      className="w-full bg-secondary-800/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-secondary-500 focus:outline-none focus:border-primary-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs lg:text-sm text-secondary-300 mb-2">Status</label>
+                    <label className="block text-sm text-secondary-300 mb-2">Status</label>
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full glass-sm rounded-lg px-3 lg:px-4 py-2 text-sm"
+                      className="w-full bg-secondary-800/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
                     >
                       <option value="upcoming">Upcoming</option>
                       <option value="running">Running</option>
@@ -274,14 +253,14 @@ export default function ProjectsLayout({
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={() => setShowNewProjectModal(false)}
-                    className="flex-1 px-4 py-2 rounded-lg border border-secondary-700 text-secondary-300 hover:text-white transition-colors text-sm"
+                    className="flex-1 px-4 py-2.5 border border-secondary-700 text-secondary-300 hover:text-white rounded-lg transition-colors font-medium"
                   >
                     Cancel
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={handleCreateProject}
-                    className="flex-1 btn-primary rounded-lg text-sm"
+                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
                   >
                     Create
                   </motion.button>
@@ -291,8 +270,17 @@ export default function ProjectsLayout({
           )}
         </AnimatePresence>
 
+        {/* Mobile Sidebar Toggle */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="fixed bottom-6 right-6 z-40 lg:hidden p-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg transition-colors"
+        >
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Briefcase className="w-6 h-6" />}
+        </motion.button>
+
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto pb-20 md:pb-0 pr-0 md:pr-4">
+        <div className="flex-1 overflow-y-auto pb-20 lg:pb-0">
           {children}
         </div>
       </div>
