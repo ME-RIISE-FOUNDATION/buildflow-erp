@@ -50,9 +50,9 @@ export default function FinancePage() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           {[
-            { label: 'Total Income', value: '$280K', color: 'from-green-600 to-green-400' },
-            { label: 'Total Expenses', value: '$270K', color: 'from-red-600 to-red-400' },
-            { label: 'Profit', value: '$10K', color: 'from-primary-600 to-primary-400' },
+            { label: 'Total Income', value: '₹28L', color: 'from-green-600 to-green-400' },
+            { label: 'Total Expenses', value: '₹27L', color: 'from-red-600 to-red-400' },
+            { label: 'Profit', value: '₹1L', color: 'from-primary-600 to-primary-400' },
           ].map((card, i) => (
             <motion.div
               key={i}
@@ -80,7 +80,7 @@ export default function FinancePage() {
                 <div key={item.category}>
                   <div className="flex justify-between mb-2">
                     <span className="text-secondary-300">{item.category}</span>
-                    <span className="text-white font-semibold">${item.amount.toLocaleString()}</span>
+                    <span className="text-white font-semibold">₹{item.amount.toLocaleString()}</span>
                   </div>
                   <div className="h-2 bg-secondary-700 rounded-full overflow-hidden">
                     <motion.div
