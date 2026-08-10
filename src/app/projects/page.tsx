@@ -34,6 +34,7 @@ const Chart = dynamic(() => import('react-apexcharts'), {
 })
 
 const SIDEBAR_ITEMS = [
+  { id: 'dashboard', label: 'Full Dashboard', icon: BarChart3 },
   { id: 'overview', label: 'Overview', icon: BarChart3 },
   { id: 'customer', label: 'Customer Profile', icon: User },
   { id: 'owner', label: 'Owner Details', icon: User },
@@ -792,6 +793,226 @@ export default function ProjectDashboardPage() {
 
         {/* Dynamic Content Based on Section */}
         <AnimatePresence mode="wait">
+          {activeSection === 'dashboard' && (
+            <motion.div key="dashboard" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="space-y-6">
+              {/* Project Summary Cards Row 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-br from-primary-600/20 to-primary-400/5 border border-primary-500/20 rounded-2xl p-6">
+                  <p className="text-secondary-400 text-sm mb-2">Project Status</p>
+                  <p className="text-2xl font-bold text-primary-400 capitalize">{project.status}</p>
+                  <p className="text-xs text-secondary-400 mt-2">{project.name}</p>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-br from-purple-600/20 to-purple-400/5 border border-purple-500/20 rounded-2xl p-6">
+                  <p className="text-secondary-400 text-sm mb-2">Overall Progress</p>
+                  <p className="text-2xl font-bold text-purple-400">{project.progress}%</p>
+                  <div className="w-full h-2 bg-secondary-700 rounded-full mt-3 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-purple-600 to-purple-400" style={{ width: `${project.progress}%` }}></div>
+                  </div>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-br from-green-600/20 to-green-400/5 border border-green-500/20 rounded-2xl p-6">
+                  <p className="text-secondary-400 text-sm mb-2">Remaining Budget</p>
+                  <p className="text-2xl font-bold text-green-400">₹{(remainingBudget / 100000).toFixed(1)}L</p>
+                  <p className="text-xs text-secondary-400 mt-2">{remainingPercentage.toFixed(1)}% left</p>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-br from-orange-600/20 to-orange-400/5 border border-orange-500/20 rounded-2xl p-6">
+                  <p className="text-secondary-400 text-sm mb-2">Days Active</p>
+                  <p className="text-2xl font-bold text-orange-400">
+                    {project.startDate ? Math.floor((new Date().getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 'N/A'}
+                  </p>
+                  <p className="text-xs text-secondary-400 mt-2">Since {project.startDate}</p>
+                </motion.div>
+              </div>
+
+              {/* Client & Owner Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">👤 Client Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-secondary-400 text-sm">Name</p>
+                      <p className="text-white font-semibold">{project.client_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-secondary-400 text-sm">Email</p>
+                      <p className="text-white font-semibold">{project.client_email || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-secondary-400 text-sm">Phone</p>
+                      <p className="text-white font-semibold">{project.client_phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">🏢 Project Owner</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-secondary-400 text-sm">Owner Name</p>
+                      <p className="text-white font-semibold">{project.owner}</p>
+                    </div>
+                    <div>
+                      <p className="text-secondary-400 text-sm">Contact</p>
+                      <p className="text-white font-semibold">{project.ownerPhone}</p>
+                    </div>
+                    <div>
+                      <p className="text-secondary-400 text-sm">Address</p>
+                      <p className="text-white font-semibold text-sm">{project.address}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Budget & Financial Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">💰 Financial Summary</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Total Budget</span>
+                      <span className="text-xl font-bold text-primary-400">₹{(project.budget / 100000).toFixed(1)}L</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Spent</span>
+                      <span className="text-xl font-bold text-red-400">₹{(project.expenses / 100000).toFixed(1)}L</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Material Cost</span>
+                      <span className="text-xl font-bold text-green-400">₹{(project.materialCost / 100000).toFixed(1)}L</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Labour Cost</span>
+                      <span className="text-xl font-bold text-orange-400">₹{(project.labourCost / 100000).toFixed(1)}L</span>
+                    </div>
+                    <div className="h-2 bg-secondary-700 rounded-full overflow-hidden mt-4">
+                      <div className="h-full bg-gradient-to-r from-red-600 to-red-400" style={{ width: `${project.budget > 0 ? (project.expenses / project.budget) * 100 : 0}%` }}></div>
+                    </div>
+                    <p className="text-xs text-secondary-400 text-center">{project.budget > 0 ? ((project.expenses / project.budget) * 100).toFixed(1) : '0'}% spent</p>
+                  </div>
+                </div>
+
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">📐 Property Details</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Length</span>
+                      <span className="text-xl font-bold text-white">{project.length}m</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Width</span>
+                      <span className="text-xl font-bold text-white">{project.width}m</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Area (m²)</span>
+                      <span className="text-xl font-bold text-white">{project.area}m²</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-secondary-800/50 rounded-lg">
+                      <span className="text-secondary-400">Area (sqft)</span>
+                      <span className="text-xl font-bold text-white">{Math.round(project.area * 10.764)} sqft</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Materials & Expenses Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">📦 Materials ({project.materials.length})</h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {project.materials.length === 0 ? (
+                      <p className="text-secondary-400 text-sm">No materials added</p>
+                    ) : (
+                      project.materials.map(m => (
+                        <div key={m.id} className="flex items-center justify-between p-2 bg-secondary-800/50 rounded text-sm">
+                          <span className="text-secondary-300">{m.name}</span>
+                          <span className="text-primary-400 font-semibold">{m.quantity} {m.unit}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">💸 Expenses ({project.expenseDetails?.length || 0})</h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {!project.expenseDetails || project.expenseDetails.length === 0 ? (
+                      <p className="text-secondary-400 text-sm">No expenses recorded</p>
+                    ) : (
+                      project.expenseDetails.slice(-5).map(e => (
+                        <div key={e.id} className="flex items-center justify-between p-2 bg-secondary-800/50 rounded text-sm">
+                          <span className="text-secondary-300">{e.category}</span>
+                          <span className="text-red-400 font-semibold">₹{(e.amount / 1000).toFixed(0)}K</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                  <h3 className="text-lg font-bold text-white mb-4">🏗️ Construction Phase</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-secondary-300">Top Progress</span>
+                      <span className="text-green-400 font-semibold">{Object.entries(constructionForm).reduce((max, [k, v]) => {
+                        const val = parseInt(v.toString()) || 0;
+                        return val > parseInt(max.toString()) ? val : max;
+                      }, 0)}%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-secondary-300">Completed Phases</span>
+                      <span className="text-primary-400 font-semibold">{Object.values(constructionForm).filter(v => parseInt(v.toString()) === 100).length}/13</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-secondary-300">Average Progress</span>
+                      <span className="text-blue-400 font-semibold">{Math.round(Object.values(constructionForm).reduce((a, b) => a + parseInt(b.toString()), 0) / Object.values(constructionForm).length)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Timeline */}
+              <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                <h3 className="text-lg font-bold text-white mb-4">📅 Project Timeline</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-secondary-400 text-sm mb-2">Start Date</p>
+                    <p className="text-xl font-bold text-white">{project.startDate || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <p className="text-secondary-400 text-sm mb-2">End Date</p>
+                    <p className="text-xl font-bold text-white">{project.endDate || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <p className="text-secondary-400 text-sm mb-2">Duration</p>
+                    <p className="text-xl font-bold text-white">
+                      {project.startDate && project.endDate
+                        ? Math.floor((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))
+                        : 'Ongoing'} days
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-3">
+                <motion.button whileHover={{ scale: 1.05 }} onClick={() => setActiveSection('reports')} className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold">
+                  📊 View Reports
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} onClick={() => setActiveSection('expenses')} className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold">
+                  💸 Expenses
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} onClick={() => setActiveSection('details')} className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold">
+                  🏗️ Construction
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} onClick={() => setActiveSection('materials')} className="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold">
+                  📦 Materials
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
           {activeSection === 'overview' && (
             <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-secondary-900/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
