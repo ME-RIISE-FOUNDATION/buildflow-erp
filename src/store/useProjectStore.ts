@@ -11,6 +11,14 @@ export interface Material {
   purchaseDate: string
 }
 
+export interface Expense {
+  id: number
+  category: string
+  amount: number
+  date: string
+  description: string
+}
+
 export interface Project {
   id: number
   name: string
@@ -30,6 +38,7 @@ export interface Project {
   materialCost: number
   labourCost: number
   materials: Material[]
+  expenseDetails: Expense[]
   startDate?: string
   endDate?: string
   description?: string
@@ -44,6 +53,8 @@ interface ProjectStore {
   deleteProject: (id: number) => void
   addMaterial: (projectId: number, material: Material) => void
   deleteMaterial: (projectId: number, materialId: number) => void
+  addExpense: (projectId: number, expense: Expense) => void
+  deleteExpense: (projectId: number, expenseId: number) => void
   getProjectById: (id: number) => Project | undefined
   loadFromStorage: () => void
 }
@@ -152,6 +163,36 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
           }
           return p
         })
+        saveToStorage(newProjects, state.selectedProjectId)
+        return { projects: newProjects }
+      })
+    },
+
+    addExpense: (projectId: number, expense: Expense) => {
+      set(state => {
+        const newProjects = state.projects.map(p =>
+          p.id === projectId
+            ? {
+                ...p,
+                expenseDetails: [...(p.expenseDetails || []), expense],
+              }
+            : p
+        )
+        saveToStorage(newProjects, state.selectedProjectId)
+        return { projects: newProjects }
+      })
+    },
+
+    deleteExpense: (projectId: number, expenseId: number) => {
+      set(state => {
+        const newProjects = state.projects.map(p =>
+          p.id === projectId
+            ? {
+                ...p,
+                expenseDetails: (p.expenseDetails || []).filter(e => e.id !== expenseId),
+              }
+            : p
+        )
         saveToStorage(newProjects, state.selectedProjectId)
         return { projects: newProjects }
       })
