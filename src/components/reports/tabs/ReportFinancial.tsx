@@ -18,12 +18,7 @@ interface Filters {
 }
 
 export default function ReportFinancial({ filters }: { filters: Filters }) {
-  const financialMetrics = [
-    { label: 'Budget', value: 2500000, icon: <TrendingUp className="w-6 h-6" />, color: 'text-primary-400', bg: 'bg-primary-600/10' },
-    { label: 'Expense', value: 1625000, icon: <TrendingDown className="w-6 h-6" />, color: 'text-orange-400', bg: 'bg-orange-600/10' },
-    { label: 'Paid', value: 1450000, icon: <TrendingUp className="w-6 h-6" />, color: 'text-green-400', bg: 'bg-green-600/10' },
-    { label: 'Pending', value: 175000, icon: <AlertCircle className="w-6 h-6" />, color: 'text-yellow-400', bg: 'bg-yellow-600/10' },
-  ]
+  const financialMetrics = []
 
   const cashFlowOptions = {
     chart: { type: 'line' as const, toolbar: { show: true } },
@@ -35,10 +30,7 @@ export default function ReportFinancial({ filters }: { filters: Filters }) {
     legend: { position: 'top' as const },
   }
 
-  const cashFlowSeries = [
-    { name: 'Inflow', data: [500000, 480000, 450000, 420000] },
-    { name: 'Outflow', data: [280000, 320000, 350000, 400000] },
-  ]
+  const cashFlowSeries = []
 
   return (
     <motion.div

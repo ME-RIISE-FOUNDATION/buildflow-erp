@@ -11,56 +11,7 @@ import {
   CheckCircle,
 } from 'lucide-react'
 
-const activities = [
-  {
-    id: 1,
-    icon: Briefcase,
-    title: 'New Project Created',
-    description: 'Downtown Mall Complex - Phase 2',
-    timestamp: '2 hours ago',
-    color: 'text-primary-400',
-  },
-  {
-    id: 2,
-    icon: Users,
-    title: 'New Client Added',
-    description: 'Acme Construction Ltd.',
-    timestamp: '4 hours ago',
-    color: 'text-accent-400',
-  },
-  {
-    id: 3,
-    icon: FileText,
-    title: 'Report Generated',
-    description: 'Monthly Financial Report - July 2026',
-    timestamp: '6 hours ago',
-    color: 'text-yellow-400',
-  },
-  {
-    id: 4,
-    icon: DollarSign,
-    title: 'Payment Received',
-    description: '$25,000 from Skyline Developers',
-    timestamp: '8 hours ago',
-    color: 'text-green-400',
-  },
-  {
-    id: 5,
-    icon: Package,
-    title: 'Material Inventory Updated',
-    description: 'Stock refilled for Cement and Steel',
-    timestamp: '10 hours ago',
-    color: 'text-orange-400',
-  },
-  {
-    id: 6,
-    icon: CheckCircle,
-    title: 'Project Completed',
-    description: 'Residential Complex - Tower A',
-    timestamp: '1 day ago',
-    color: 'text-green-400',
-  },
-]
+const activities: any[] = []
 
 const containerVariants = {
   hidden: { opacity: 0 },

@@ -6,48 +6,7 @@ import DashboardLayout from '@/layouts/DashboardLayout'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Search, Mail, Phone, MapPin, MoreVertical, X } from 'lucide-react'
 
-const initialClients = [
-  {
-    id: 1,
-    name: 'Skyline Developers',
-    email: 'contact@skyline.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Business Ave, Downtown',
-    projects: 4,
-    totalSpent: 1250000,
-    status: 'active',
-  },
-  {
-    id: 2,
-    name: 'Urban Living Inc',
-    email: 'info@urbanliving.com',
-    phone: '+1 (555) 234-5678',
-    address: '456 Residential St, Midtown',
-    projects: 2,
-    totalSpent: 680000,
-    status: 'active',
-  },
-  {
-    id: 3,
-    name: 'Corporate Spaces Ltd',
-    email: 'office@corporatespaces.com',
-    phone: '+1 (555) 345-6789',
-    address: '789 Business Park, Uptown',
-    projects: 3,
-    totalSpent: 920000,
-    status: 'active',
-  },
-  {
-    id: 4,
-    name: 'Retail Plus',
-    email: 'sales@retailplus.com',
-    phone: '+1 (555) 456-7890',
-    address: '321 Commerce Blvd, Harbor',
-    projects: 1,
-    totalSpent: 320000,
-    status: 'pending',
-  },
-]
+const initialClients = []
 
 export default function ClientsPage() {
   const router = useRouter()

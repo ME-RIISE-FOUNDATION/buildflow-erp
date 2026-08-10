@@ -17,15 +17,9 @@ interface Filters {
 export default function ReportMaterials({ filters }: { filters: Filters }) {
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null)
 
-  const materials = [
-    { name: 'Cement', quantity: 5000, unit: 'bags', cost: 350000, avgRate: 70, suppliers: 3, lastPurchase: '2026-07-20' },
-    { name: 'Steel', quantity: 2500, unit: 'kg', cost: 280000, avgRate: 112, suppliers: 2, lastPurchase: '2026-07-19' },
-    { name: 'Bricks', quantity: 50000, unit: 'pcs', cost: 180000, avgRate: 3.6, suppliers: 4, lastPurchase: '2026-07-18' },
-    { name: 'Sand', quantity: 15000, unit: 'cum', cost: 150000, avgRate: 10, suppliers: 2, lastPurchase: '2026-07-17' },
-    { name: 'Paint', quantity: 500, unit: 'liters', cost: 120000, avgRate: 240, suppliers: 2, lastPurchase: '2026-07-16' },
-  ]
+  const materials = []
 
-  const workStages = ['Foundation', 'Ground Floor', 'First Floor', 'Roof', 'Finishing']
+  const workStages = []
 
   return (
     <motion.div

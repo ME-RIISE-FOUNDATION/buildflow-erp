@@ -9,16 +9,11 @@ import { Plus } from 'lucide-react'
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 export default function FinancePage() {
-  const expenseData = [
-    { category: 'Material Cost', amount: 125000, percentage: 45 },
-    { category: 'Labour Cost', amount: 85000, percentage: 30 },
-    { category: 'Equipment', amount: 40000, percentage: 15 },
-    { category: 'Transportation', amount: 20000, percentage: 10 },
-  ]
+  const expenseData = []
 
-  const totalIncome = 280000
-  const totalExpense = 270000
-  const profit = totalIncome - totalExpense
+  const totalIncome = 0
+  const totalExpense = 0
+  const profit = 0
 
   return (
     <DashboardLayout>
@@ -50,9 +45,9 @@ export default function FinancePage() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           {[
-            { label: 'Total Income', value: '₹28L', color: 'from-green-600 to-green-400' },
-            { label: 'Total Expenses', value: '₹27L', color: 'from-red-600 to-red-400' },
-            { label: 'Profit', value: '₹1L', color: 'from-primary-600 to-primary-400' },
+            { label: 'Total Income', value: '₹0', color: 'from-green-600 to-green-400' },
+            { label: 'Total Expenses', value: '₹0', color: 'from-red-600 to-red-400' },
+            { label: 'Profit', value: '₹0', color: 'from-primary-600 to-primary-400' },
           ].map((card, i) => (
             <motion.div
               key={i}

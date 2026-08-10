@@ -28,10 +28,7 @@ export default function ReportOverview({ filters }: { filters: Filters }) {
     legend: { position: 'top' as const },
   }
 
-  const budgetVsExpenseSeries = [
-    { name: 'Budget', data: [500000, 500000, 500000, 500000, 500000] },
-    { name: 'Expense', data: [280000, 320000, 350000, 400000, 420000] },
-  ]
+  const budgetVsExpenseSeries = []
 
   const monthlyExpenseOptions = {
     chart: { type: 'line' as const, toolbar: { show: true } },
@@ -42,9 +39,7 @@ export default function ReportOverview({ filters }: { filters: Filters }) {
     tooltip: { theme: 'dark' as const },
   }
 
-  const monthlyExpenseSeries = [
-    { name: 'Monthly Expense', data: [180000, 220000, 250000, 290000, 310000, 340000, 280000] },
-  ]
+  const monthlyExpenseSeries = []
 
   const cashFlowOptions = {
     chart: { type: 'area' as const, toolbar: { show: true } },
@@ -55,9 +50,7 @@ export default function ReportOverview({ filters }: { filters: Filters }) {
     tooltip: { theme: 'dark' as const },
   }
 
-  const cashFlowSeries = [
-    { name: 'Cash Flow', data: [500000, 480000, 450000, 420000] },
-  ]
+  const cashFlowSeries = []
 
   const materialDistributionOptions = {
     chart: { type: 'donut' as const, toolbar: { show: true } },
@@ -66,7 +59,7 @@ export default function ReportOverview({ filters }: { filters: Filters }) {
     tooltip: { theme: 'dark' as const },
   }
 
-  const materialDistributionSeries = [350000, 280000, 180000, 150000, 120000]
+  const materialDistributionSeries = []
 
   const containerVariants = {
     hidden: { opacity: 0 },

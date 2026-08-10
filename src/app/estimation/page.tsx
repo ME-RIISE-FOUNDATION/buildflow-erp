@@ -5,30 +5,7 @@ import DashboardLayout from '@/layouts/DashboardLayout'
 import { motion } from 'framer-motion'
 import { Plus, FileText } from 'lucide-react'
 
-const estimations = [
-  {
-    id: 1,
-    project: 'Downtown Mall Complex',
-    category: 'Foundation',
-    description: 'Excavation and PCC work',
-    quantity: 500,
-    unit: 'cu.m',
-    unitPrice: 150,
-    total: 75000,
-    status: 'completed',
-  },
-  {
-    id: 2,
-    project: 'Downtown Mall Complex',
-    category: 'Structural',
-    description: 'Concrete and steel work',
-    quantity: 1200,
-    unit: 'cu.m',
-    unitPrice: 200,
-    total: 240000,
-    status: 'in_progress',
-  },
-]
+const estimations = []
 
 export default function EstimationPage() {
   const [selectedProject, setSelectedProject] = useState('all')
@@ -63,9 +40,9 @@ export default function EstimationPage() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           {[
-            { label: 'Total Estimated Cost', value: '₹2.4Cr' },
-            { label: 'Estimation Accuracy', value: '94%' },
-            { label: 'Active Estimations', value: '12' },
+            { label: 'Total Estimated Cost', value: '₹0' },
+            { label: 'Estimation Accuracy', value: '0%' },
+            { label: 'Active Estimations', value: '0' },
           ].map((stat, i) => (
             <motion.div
               key={i}

@@ -58,16 +58,7 @@ export default function DashboardCharts() {
     },
   }
 
-  const series = [
-    {
-      name: 'Projects Completed',
-      data: [30, 40, 35, 50, 49, 60],
-    },
-    {
-      name: 'Projects Running',
-      data: [20, 30, 25, 35, 30, 40],
-    },
-  ]
+  const series = []
 
   const barChartOptions = {
     chart: {
@@ -104,12 +95,7 @@ export default function DashboardCharts() {
     },
   }
 
-  const barSeries = [
-    {
-      name: 'Expenses',
-      data: [65000, 35000, 25000],
-    },
-  ]
+  const barSeries = []
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -159,7 +145,7 @@ export default function DashboardCharts() {
               theme: 'dark',
             },
           }}
-          series={[8, 14, 2, 12]}
+          series={[]}
           type="donut"
           height={250}
         />
@@ -190,16 +176,7 @@ export default function DashboardCharts() {
           <h2 className="text-xl font-bold text-white mb-4">Quick Stats</h2>
 
           <div className="space-y-3">
-            {[
-              { label: 'Avg. Project Cost', value: '$125K' },
-              { label: 'Total Budget', value: '$2.8M' },
-              { label: 'Avg. Timeline', value: '4.5 Months' },
-            ].map((stat, i) => (
-              <div key={i} className="pb-3 border-b border-white/10 last:border-0">
-                <p className="text-secondary-400 text-sm mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-white gradient-text">{stat.value}</p>
-              </div>
-            ))}
+            <p className="text-secondary-400 text-sm">No data available</p>
           </div>
         </div>
       </motion.div>

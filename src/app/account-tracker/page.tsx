@@ -1,10 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DashboardLayout from '@/layouts/DashboardLayout'
 import { Plus, Trophy, Award, TrendingUp, Folder, Download, ChevronRight, Users, FileText, BarChart3, Wallet, ArrowUpRight, Target, X, Send, CheckCircle } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { useProjectStore } from '@/store/useProjectStore'
+import { jsPDF } from 'jspdf'
+import * as XLSX from 'xlsx'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false, loading: () => <div className="h-80 bg-secondary-800/30 rounded-2xl animate-pulse" /> })
 
@@ -13,6 +16,17 @@ interface ModalType {
 }
 
 export default function AccountTrackerPage() {
+  const projects = useProjectStore((state) => state.projects)
+  const loadFromStorage = useProjectStore((state) => state.loadFromStorage)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<any>(null)
+
+  useEffect(() => {
+    // Load from storage on mount
+    loadFromStorage()
+    setIsLoaded(true)
+  }, [])
+
   const [activeModal, setActiveModal] = useState<ModalType['type']>(null)
   const [successMessage, setSuccessMessage] = useState('')
   const [formData, setFormData] = useState({
@@ -23,11 +37,221 @@ export default function AccountTrackerPage() {
     description: '',
   })
 
+  // Download functions
+  const downloadPDF = (project: any) => {
+    try {
+      const pdf = new jsPDF()
+      let yPosition = 10
+
+      // Title
+      pdf.setFontSize(20)
+      pdf.text('PROJECT DETAILS REPORT', 10, yPosition)
+      yPosition += 15
+
+      // Project Name
+      pdf.setFontSize(12)
+      pdf.setFont(undefined, 'bold')
+      pdf.text(`${project.name}`, 10, yPosition)
+      yPosition += 8
+
+      pdf.setFont(undefined, 'normal')
+      pdf.setFontSize(10)
+      pdf.text(`${project.description || 'Construction Project'}`, 10, yPosition)
+      yPosition += 12
+
+      // Client Info
+      pdf.setFont(undefined, 'bold')
+      pdf.text('CLIENT INFORMATION', 10, yPosition)
+      yPosition += 6
+      pdf.setFont(undefined, 'normal')
+      pdf.text(`Client: ${project.client_name}`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Email: ${project.client_email || 'N/A'}`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Phone: ${project.ownerPhone}`, 10, yPosition)
+      yPosition += 12
+
+      // Owner Info
+      pdf.setFont(undefined, 'bold')
+      pdf.text('OWNER DETAILS', 10, yPosition)
+      yPosition += 6
+      pdf.setFont(undefined, 'normal')
+      pdf.text(`Owner: ${project.owner}`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Phone: ${project.ownerPhone}`, 10, yPosition)
+      yPosition += 12
+
+      // Address
+      pdf.setFont(undefined, 'bold')
+      pdf.text('SITE ADDRESS', 10, yPosition)
+      yPosition += 6
+      pdf.setFont(undefined, 'normal')
+      pdf.text(project.address, 10, yPosition, { maxWidth: 190 })
+      yPosition += 15
+
+      // Measurements
+      pdf.setFont(undefined, 'bold')
+      pdf.text('PROPERTY MEASUREMENTS', 10, yPosition)
+      yPosition += 6
+      pdf.setFont(undefined, 'normal')
+      pdf.text(`Length: ${project.length}m | Width: ${project.width}m | Area: ${project.area}m² | Square Feet: ${Math.round(project.area * 10.764)}`, 10, yPosition, { maxWidth: 190 })
+      yPosition += 12
+
+      // Status
+      pdf.setFont(undefined, 'bold')
+      pdf.text('PROJECT STATUS', 10, yPosition)
+      yPosition += 6
+      pdf.setFont(undefined, 'normal')
+      pdf.text(`Status: ${project.status.toUpperCase()} | Progress: ${project.progress}%`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Start: ${project.startDate || 'N/A'} | End: ${project.endDate || 'N/A'}`, 10, yPosition)
+      yPosition += 12
+
+      // Financial Details
+      pdf.setFont(undefined, 'bold')
+      pdf.text('FINANCIAL DETAILS', 10, yPosition)
+      yPosition += 6
+      pdf.setFont(undefined, 'normal')
+      pdf.text(`Total Budget: ₹${(project.budget / 100000).toFixed(1)}L`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Expenses: ₹${(project.expenses / 100000).toFixed(1)}L`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Material Cost: ₹${(project.materialCost / 100000).toFixed(1)}L`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Labour Cost: ₹${(project.labourCost / 100000).toFixed(1)}L`, 10, yPosition)
+      yPosition += 5
+      pdf.text(`Remaining Budget: ₹${((project.budget - project.expenses) / 100000).toFixed(1)}L`, 10, yPosition)
+      yPosition += 12
+
+      // Materials
+      if (project.materials && project.materials.length > 0) {
+        pdf.setFont(undefined, 'bold')
+        pdf.text(`MATERIALS (${project.materials.length})`, 10, yPosition)
+        yPosition += 6
+        pdf.setFont(undefined, 'normal')
+        pdf.setFontSize(9)
+
+        project.materials.forEach((material: any) => {
+          if (yPosition > 270) {
+            pdf.addPage()
+            yPosition = 10
+          }
+          pdf.text(`${material.name}`, 10, yPosition)
+          yPosition += 4
+          pdf.text(`Qty: ${material.quantity} ${material.unit} | Used: ${material.used} | Remaining: ${material.quantity - material.used} | Cost: ₹${(material.cost / 1000).toFixed(0)}K`, 12, yPosition)
+          yPosition += 4
+          pdf.text(`Supplier: ${material.supplier} | Date: ${material.purchaseDate}`, 12, yPosition)
+          yPosition += 8
+        })
+      }
+
+      pdf.save(`${project.name}-Report.pdf`)
+      setSuccessMessage(`✓ Downloaded PDF: ${project.name}-Report.pdf`)
+      setTimeout(() => setSuccessMessage(''), 2000)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      setSuccessMessage('❌ Error generating PDF')
+      setTimeout(() => setSuccessMessage(''), 2000)
+    }
+  }
+
+  const downloadExcel = (project: any) => {
+    try {
+      const wb = XLSX.utils.book_new()
+
+      // Sheet 1: Project Summary
+      const summaryData = [
+        ['Project Details Report'],
+        [],
+        ['Project Name', project.name],
+        ['Description', project.description || 'Construction Project'],
+        [],
+        ['CLIENT INFORMATION'],
+        ['Client Name', project.client_name],
+        ['Email', project.client_email || 'N/A'],
+        ['Phone', project.ownerPhone],
+        [],
+        ['OWNER DETAILS'],
+        ['Owner Name', project.owner],
+        ['Phone', project.ownerPhone],
+        [],
+        ['SITE ADDRESS'],
+        ['Address', project.address],
+        [],
+        ['PROPERTY MEASUREMENTS'],
+        ['Length (m)', project.length],
+        ['Width (m)', project.width],
+        ['Area (m²)', project.area],
+        ['Square Feet', Math.round(project.area * 10.764)],
+        [],
+        ['PROJECT STATUS'],
+        ['Status', project.status.toUpperCase()],
+        ['Progress (%)', project.progress],
+        ['Start Date', project.startDate || 'N/A'],
+        ['End Date', project.endDate || 'N/A'],
+        [],
+        ['FINANCIAL DETAILS'],
+        ['Total Budget (₹)', project.budget],
+        ['Expenses (₹)', project.expenses],
+        ['Material Cost (₹)', project.materialCost],
+        ['Labour Cost (₹)', project.labourCost],
+        ['Remaining Budget (₹)', project.budget - project.expenses],
+      ]
+
+      const summaryWs = XLSX.utils.aoa_to_sheet(summaryData)
+      summaryWs['!cols'] = [{ wch: 25 }, { wch: 35 }]
+      XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
+
+      // Sheet 2: Materials
+      if (project.materials && project.materials.length > 0) {
+        const materialsData = [
+          ['Name', 'Quantity', 'Unit', 'Used', 'Remaining', 'Cost (₹)', 'Supplier', 'Purchase Date'],
+          ...project.materials.map((m: any) => [
+            m.name,
+            m.quantity,
+            m.unit,
+            m.used,
+            m.quantity - m.used,
+            m.cost,
+            m.supplier,
+            m.purchaseDate,
+          ]),
+        ]
+
+        const materialsWs = XLSX.utils.aoa_to_sheet(materialsData)
+        materialsWs['!cols'] = [
+          { wch: 20 },
+          { wch: 12 },
+          { wch: 10 },
+          { wch: 10 },
+          { wch: 12 },
+          { wch: 15 },
+          { wch: 20 },
+          { wch: 15 },
+        ]
+        XLSX.utils.book_append_sheet(wb, materialsWs, 'Materials')
+      }
+
+      XLSX.writeFile(wb, `${project.name}-Report.xlsx`)
+      setSuccessMessage(`✓ Downloaded Excel: ${project.name}-Report.xlsx`)
+      setTimeout(() => setSuccessMessage(''), 2000)
+    } catch (error) {
+      console.error('Error generating Excel:', error)
+      setSuccessMessage('❌ Error generating Excel')
+      setTimeout(() => setSuccessMessage(''), 2000)
+    }
+  }
+
+  const totalBudget = projects.reduce((sum, p) => sum + p.budget, 0)
+  const totalExpenses = projects.reduce((sum, p) => sum + p.expenses, 0)
+  const completedProjects = projects.filter(p => p.status === 'completed').length
+  const runningProjects = projects.filter(p => p.status === 'running').length
+
   const stats = [
-    { icon: Award, label: 'Total Achievements', value: '156', subtext: 'Completed', change: '+12%', gradient: 'from-blue-600 to-blue-400', light: 'bg-blue-600/5', border: 'border-blue-500/20' },
-    { icon: TrendingUp, label: 'Total Revenue', value: '₹12,50,000', subtext: 'All Time', change: '+8.2%', gradient: 'from-emerald-600 to-emerald-400', light: 'bg-emerald-600/5', border: 'border-emerald-500/20' },
-    { icon: BarChart3, label: 'Monthly Progress', value: '85%', subtext: 'On Track', change: '+5%', gradient: 'from-amber-600 to-amber-400', light: 'bg-amber-600/5', border: 'border-amber-500/20' },
-    { icon: Target, label: 'Total Projects', value: '24', subtext: '9 In Progress', change: '+3', gradient: 'from-violet-600 to-violet-400', light: 'bg-violet-600/5', border: 'border-violet-500/20' },
+    { icon: Trophy, label: 'Total Projects', value: projects.length.toString(), subtext: `${completedProjects} Completed`, change: '+3', gradient: 'from-blue-600 to-blue-400', light: 'bg-blue-600/5', border: 'border-blue-500/20' },
+    { icon: TrendingUp, label: 'Total Budget', value: `₹${(totalBudget / 1000000).toFixed(1)}M`, subtext: 'All Projects', change: '+8.2%', gradient: 'from-emerald-600 to-emerald-400', light: 'bg-emerald-600/5', border: 'border-emerald-500/20' },
+    { icon: BarChart3, label: 'Total Expenses', value: `₹${(totalExpenses / 1000000).toFixed(1)}M`, subtext: 'All Time', change: '-5%', gradient: 'from-amber-600 to-amber-400', light: 'bg-amber-600/5', border: 'border-amber-500/20' },
+    { icon: Target, label: 'Running', value: runningProjects.toString(), subtext: 'In Progress', change: '+2', gradient: 'from-violet-600 to-violet-400', light: 'bg-violet-600/5', border: 'border-violet-500/20' },
   ]
 
   const projectOverviewOptions = {
@@ -42,25 +266,46 @@ export default function AccountTrackerPage() {
     dataLabels: { enabled: false },
   }
 
-  const projectOverviewSeries = [10, 9, 3, 2]
-
-  const projects = [
-    { id: 1, name: 'AK Villa Project', type: 'Residential', status: 'Completed', statusColor: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' },
-    { id: 2, name: 'Interior Design Work', type: 'Interior', status: 'In Progress', statusColor: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-    { id: 3, name: 'Commercial Building', type: 'Commercial', status: 'In Progress', statusColor: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-    { id: 4, name: 'Office Renovation', type: 'Renovation', status: 'On Hold', statusColor: 'bg-amber-500/10 text-amber-400 border border-amber-500/20' },
+  const projectOverviewSeries = [
+    projects.filter(p => p.status === 'completed').length,
+    projects.filter(p => p.status === 'running').length,
+    0,
+    projects.filter(p => p.status === 'upcoming').length,
   ]
 
-  const projectDetails = {
-    name: 'AK Villa Project',
-    client: 'Mr. Sharma',
-    type: 'Residential',
-    startDate: '01 May 2026',
-    endDate: '12 Jun 2026',
-    status: 'Completed',
-    budget: '₹5,00,000',
-    revenue: '₹5,00,000',
-    progress: 100,
+  const projectsWithStatus = projects.map(p => ({
+    id: p.id,
+    name: p.name,
+    type: p.description || 'Construction',
+    status: p.status.charAt(0).toUpperCase() + p.status.slice(1),
+    statusColor: p.status === 'completed'
+      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+      : p.status === 'running'
+      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+  }))
+
+  const firstProject = projects.length > 0 ? projects[0] : null
+  const projectDetails = firstProject ? {
+    name: firstProject.name,
+    client: firstProject.client_name,
+    type: firstProject.description || 'Construction',
+    startDate: firstProject.startDate || 'N/A',
+    endDate: firstProject.endDate || 'N/A',
+    status: firstProject.status.charAt(0).toUpperCase() + firstProject.status.slice(1),
+    budget: `₹${(firstProject.budget / 100000).toFixed(1)}L`,
+    revenue: `₹${(firstProject.budget / 100000).toFixed(1)}L`,
+    progress: firstProject.progress,
+  } : {
+    name: 'No Project',
+    client: 'N/A',
+    type: 'N/A',
+    startDate: 'N/A',
+    endDate: 'N/A',
+    status: 'N/A',
+    budget: '₹0',
+    revenue: '₹0',
+    progress: 0,
   }
 
   const files = [
@@ -98,8 +343,7 @@ export default function AccountTrackerPage() {
   }
 
   const handleProjectClick = (project: any) => {
-    setSuccessMessage(`✓ Opened: ${project.name}`)
-    setTimeout(() => setSuccessMessage(''), 2000)
+    setSelectedProjectForDetails(project)
   }
 
   const handleViewAll = (section: string) => {
@@ -420,7 +664,10 @@ export default function AccountTrackerPage() {
                 className="bg-gradient-to-br from-secondary-800/50 via-secondary-900/50 to-secondary-900/30 border border-white/5 rounded-3xl p-6 backdrop-blur-xl hover:border-white/10 transition-all"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-white">Recent Projects</h2>
+                  <div>
+                    <h2 className="text-lg font-bold text-white">Recent Projects</h2>
+                    <p className="text-xs text-secondary-400 mt-1">Showing {projectsWithStatus.length} projects</p>
+                  </div>
                   <motion.button
                     whileHover={{ x: 2 }}
                     onClick={() => handleViewAll('recent projects')}
@@ -430,22 +677,33 @@ export default function AccountTrackerPage() {
                   </motion.button>
                 </div>
                 <div className="space-y-3">
-                  {projects.map((project) => (
-                    <motion.div
-                      key={project.id}
-                      whileHover={{ x: 4 }}
-                      onClick={() => handleProjectClick(project)}
-                      className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer"
-                    >
-                      <div>
-                        <p className="font-semibold text-white text-sm">{project.name}</p>
-                        <p className="text-xs text-secondary-400">{project.type}</p>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded-lg font-semibold ${project.statusColor}`}>
-                        {project.status}
-                      </span>
-                    </motion.div>
-                  ))}
+                  {projects.length === 0 ? (
+                    <p className="text-secondary-400 text-sm text-center py-4">No projects yet</p>
+                  ) : (
+                    projects.map((project) => {
+                      const statusColor = project.status === 'completed'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : project.status === 'running'
+                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                      return (
+                        <motion.div
+                          key={project.id}
+                          whileHover={{ x: 4 }}
+                          onClick={() => handleProjectClick(project)}
+                          className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer"
+                        >
+                          <div>
+                            <p className="font-semibold text-white text-sm">{project.name}</p>
+                            <p className="text-xs text-secondary-400">{project.description || 'Construction'}</p>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-lg font-semibold ${statusColor}`}>
+                            {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                          </span>
+                        </motion.div>
+                      )
+                    })
+                  )}
                 </div>
               </motion.div>
 
@@ -730,6 +988,194 @@ export default function AccountTrackerPage() {
             </form>
           )}
         </Modal>
+
+        {/* Project Details Modal */}
+        <AnimatePresence>
+          {selectedProjectForDetails && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedProjectForDetails(null)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-gradient-to-br from-secondary-900 to-secondary-950 border border-white/10 rounded-3xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto"
+              >
+                <div className="p-8">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h2 className="text-3xl font-bold text-white mb-2">{selectedProjectForDetails.name}</h2>
+                      <p className="text-secondary-400">{selectedProjectForDetails.description || 'Construction Project'}</p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedProjectForDetails(null)}
+                      className="p-2 hover:bg-secondary-800 rounded-lg transition-colors"
+                    >
+                      <X className="w-6 h-6 text-secondary-400" />
+                    </motion.button>
+                  </div>
+
+                  {/* Download Buttons */}
+                  <div className="flex gap-3 mb-6">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => downloadPDF(selectedProjectForDetails)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download PDF
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => downloadExcel(selectedProjectForDetails)}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download Excel
+                    </motion.button>
+                  </div>
+
+                  {/* Project Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {/* Client Info */}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                      <p className="text-secondary-400 text-sm mb-1">Client</p>
+                      <p className="text-xl font-bold text-white">{selectedProjectForDetails.client_name}</p>
+                      {selectedProjectForDetails.client_email && <p className="text-xs text-secondary-400 mt-1">{selectedProjectForDetails.client_email}</p>}
+                      {selectedProjectForDetails.client_phone && <p className="text-xs text-secondary-400">{selectedProjectForDetails.client_phone}</p>}
+                    </motion.div>
+
+                    {/* Owner Info */}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                      <p className="text-secondary-400 text-sm mb-1">Owner</p>
+                      <p className="text-xl font-bold text-white">{selectedProjectForDetails.owner}</p>
+                      <p className="text-xs text-secondary-400 mt-1">{selectedProjectForDetails.ownerPhone}</p>
+                    </motion.div>
+
+                    {/* Status */}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                      <p className="text-secondary-400 text-sm mb-1">Status</p>
+                      <span className={`inline-block px-3 py-1 rounded-lg text-sm font-semibold ${
+                        selectedProjectForDetails.status === 'completed' ? 'bg-green-500/20 text-green-300' :
+                        selectedProjectForDetails.status === 'running' ? 'bg-blue-500/20 text-blue-300' :
+                        'bg-yellow-500/20 text-yellow-300'
+                      }`}>
+                        {selectedProjectForDetails.status.toUpperCase()}
+                      </span>
+                    </motion.div>
+
+                    {/* Progress */}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                      <p className="text-secondary-400 text-sm mb-2">Progress</p>
+                      <p className="text-2xl font-bold text-white mb-2">{selectedProjectForDetails.progress}%</p>
+                      <div className="w-full h-2 bg-secondary-700 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${selectedProjectForDetails.progress}%` }}
+                          transition={{ duration: 0.5 }}
+                          className="h-full bg-gradient-to-r from-primary-600 to-accent-600"
+                        />
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Address */}
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5 mb-6">
+                    <p className="text-secondary-400 text-sm mb-2">Site Address</p>
+                    <p className="text-white">{selectedProjectForDetails.address}</p>
+                  </motion.div>
+
+                  {/* Measurements */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold text-white mb-4">Property Measurements</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                        <p className="text-secondary-400 text-xs mb-1">Length</p>
+                        <p className="text-xl font-bold text-white">{selectedProjectForDetails.length}m</p>
+                      </motion.div>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                        <p className="text-secondary-400 text-xs mb-1">Width</p>
+                        <p className="text-xl font-bold text-white">{selectedProjectForDetails.width}m</p>
+                      </motion.div>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                        <p className="text-secondary-400 text-xs mb-1">Area</p>
+                        <p className="text-xl font-bold text-white">{selectedProjectForDetails.area}m²</p>
+                      </motion.div>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-4 bg-secondary-800/30 rounded-lg border border-white/5">
+                        <p className="text-secondary-400 text-xs mb-1">Square Feet</p>
+                        <p className="text-xl font-bold text-white">{Math.round(selectedProjectForDetails.area * 10.764)}</p>
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* Financial Details */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold text-white mb-4">Financial Details</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="p-4 bg-blue-600/10 border border-blue-500/20 rounded-lg">
+                        <p className="text-secondary-400 text-xs mb-1">Total Budget</p>
+                        <p className="text-lg font-bold text-blue-400">₹{(selectedProjectForDetails.budget / 100000).toFixed(1)}L</p>
+                      </motion.div>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 bg-red-600/10 border border-red-500/20 rounded-lg">
+                        <p className="text-secondary-400 text-xs mb-1">Expenses</p>
+                        <p className="text-lg font-bold text-red-400">₹{(selectedProjectForDetails.expenses / 100000).toFixed(1)}L</p>
+                      </motion.div>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="p-4 bg-emerald-600/10 border border-emerald-500/20 rounded-lg">
+                        <p className="text-secondary-400 text-xs mb-1">Material Cost</p>
+                        <p className="text-lg font-bold text-emerald-400">₹{(selectedProjectForDetails.materialCost / 100000).toFixed(1)}L</p>
+                      </motion.div>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-4 bg-orange-600/10 border border-orange-500/20 rounded-lg">
+                        <p className="text-secondary-400 text-xs mb-1">Labour Cost</p>
+                        <p className="text-lg font-bold text-orange-400">₹{(selectedProjectForDetails.labourCost / 100000).toFixed(1)}L</p>
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* Materials */}
+                  {selectedProjectForDetails.materials && selectedProjectForDetails.materials.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-4">Materials ({selectedProjectForDetails.materials.length})</h3>
+                      <div className="space-y-3">
+                        {selectedProjectForDetails.materials.map((material: any, idx: number) => (
+                          <motion.div
+                            key={material.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 + idx * 0.05 }}
+                            className="p-4 bg-secondary-800/30 rounded-lg border border-white/5"
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <p className="font-semibold text-white">{material.name}</p>
+                                <p className="text-xs text-secondary-400">{material.supplier}</p>
+                              </div>
+                              <span className="text-sm font-bold text-primary-400">₹{(material.cost / 1000).toFixed(0)}K</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-xs text-secondary-400">
+                              <div>Qty: {material.quantity} {material.unit}</div>
+                              <div>Used: {material.used}</div>
+                              <div>Remaining: {material.quantity - material.used}</div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
     </DashboardLayout>
   )
 }

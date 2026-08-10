@@ -37,64 +37,13 @@ const itemVariants = {
   },
 }
 
-const stats = [
-  {
-    icon: Briefcase,
-    label: 'Total Projects',
-    value: '24',
-    trend: '+12%',
-    color: 'from-primary-600 to-primary-400',
-  },
-  {
-    icon: CheckCircle,
-    label: 'Completed',
-    value: '8',
-    trend: '+4%',
-    color: 'from-green-600 to-green-400',
-  },
-  {
-    icon: Clock,
-    label: 'Running',
-    value: '14',
-    trend: '+2%',
-    color: 'from-accent-600 to-accent-400',
-  },
-  {
-    icon: AlertCircle,
-    label: 'Delayed',
-    value: '2',
-    trend: '-100%',
-    color: 'from-red-600 to-red-400',
-  },
-  {
-    icon: Users,
-    label: 'Total Clients',
-    value: '18',
-    trend: '+6%',
-    color: 'from-purple-600 to-purple-400',
-  },
-  {
-    icon: DollarSign,
-    label: 'Monthly Revenue',
-    value: '₹24.5L',
-    trend: '+23%',
-    color: 'from-yellow-600 to-yellow-400',
-  },
-  {
-    icon: TrendingUp,
-    label: 'Profit',
-    value: '₹12L',
-    trend: '+18%',
-    color: 'from-blue-600 to-blue-400',
-  },
-  {
-    icon: Target,
-    label: 'Pending Payments',
-    value: '₹4.5L',
-    trend: '-5%',
-    color: 'from-orange-600 to-orange-400',
-  },
-]
+const stats: Array<{
+  icon: any
+  label: string
+  value: string
+  trend: string
+  color: string
+}> = []
 
 export default function DashboardPage() {
   return (

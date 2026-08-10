@@ -5,13 +5,7 @@ import DashboardLayout from '@/layouts/DashboardLayout'
 import { motion } from 'framer-motion'
 import { Plus, Search, AlertCircle, TrendingDown } from 'lucide-react'
 
-const materials = [
-  { id: 1, name: 'Portland Cement', category: 'Cement', quantity: 5000, unit: 'bags', price: 8, status: 'in_stock' },
-  { id: 2, name: 'Steel TMT Bars', category: 'Steel', quantity: 2500, unit: 'kg', price: 65, status: 'in_stock' },
-  { id: 3, name: 'Sand', category: 'Sand', quantity: 15000, unit: 'kg', price: 0.5, status: 'in_stock' },
-  { id: 4, name: 'Bricks', category: 'Bricks', quantity: 50000, unit: 'pcs', price: 5, status: 'low_stock' },
-  { id: 5, name: 'Paint', category: 'Paint', quantity: 200, unit: 'liters', price: 45, status: 'low_stock' },
-]
+const materials = []
 
 export default function MaterialsPage() {
   const [searchTerm, setSearchTerm] = useState('')

@@ -75,6 +75,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return pathname.startsWith(href)
   }
 
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   return (
     <div
       className="min-h-screen flex"
@@ -84,7 +93,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     >
       {/* Mobile Sidebar Backdrop */}
       <AnimatePresence>
-        {sidebarOpen && (
+        {sidebarOpen && isMobile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -97,8 +106,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Sidebar */}
       <motion.div
-        initial={{ x: -320 }}
-        animate={{ x: sidebarOpen ? 0 : -320 }}
+        initial={isMobile ? { x: -320 } : { x: 0 }}
+        animate={isMobile ? { x: sidebarOpen ? 0 : -320 } : { x: 0 }}
         transition={{ duration: 0.3 }}
         className="fixed left-0 top-0 h-screen w-80 bg-secondary-900/80 border-r border-white/10 z-50 md:static md:translate-x-0 flex flex-col backdrop-blur-xl"
       >
