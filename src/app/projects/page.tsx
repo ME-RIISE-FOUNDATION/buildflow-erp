@@ -818,11 +818,11 @@ export default function ProjectDashboardPage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-br from-orange-600/20 to-orange-400/5 border border-orange-500/20 rounded-2xl p-6">
-                  <p className="text-secondary-400 text-sm mb-2">Days Active</p>
+                  <p className="text-secondary-400 text-sm mb-2">Start Date</p>
                   <p className="text-2xl font-bold text-orange-400">
-                    {project.startDate ? Math.floor((new Date().getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24)) : 'N/A'}
+                    {project.startDate || 'Not set'}
                   </p>
-                  <p className="text-xs text-secondary-400 mt-2">Since {project.startDate}</p>
+                  <p className="text-xs text-secondary-400 mt-2">Project started</p>
                 </motion.div>
               </div>
 
@@ -985,11 +985,9 @@ export default function ProjectDashboardPage() {
                     <p className="text-xl font-bold text-white">{project.endDate || 'Not set'}</p>
                   </div>
                   <div>
-                    <p className="text-secondary-400 text-sm mb-2">Duration</p>
-                    <p className="text-xl font-bold text-white">
-                      {project.startDate && project.endDate
-                        ? Math.floor((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))
-                        : 'Ongoing'} days
+                    <p className="text-secondary-400 text-sm mb-2">Status</p>
+                    <p className="text-xl font-bold text-white capitalize">
+                      {project.status}
                     </p>
                   </div>
                 </div>
