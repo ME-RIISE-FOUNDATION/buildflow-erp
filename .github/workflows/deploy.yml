@@ -1,0 +1,47 @@
+name: Deploy to Hostinger
+
+# Builds the Next.js static export and uploads it to Hostinger over FTP
+# on every push to main. Configure the 3 secrets in:
+#   GitHub repo -> Settings -> Secrets and variables -> Actions
+#     FTP_SERVER    e.g. ftp.konvix.shop  (or the IP shown in hPanel -> FTP Accounts)
+#     FTP_USERNAME  e.g. u123456789.konvix   (full FTP username from hPanel)
+#     FTP_PASSWORD  the FTP account password
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {} # lets you trigger a deploy manually from the Actions tab
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static export
+        run: npm run build
+
+      - name: Deploy to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Local build output that gets uploaded:
+          local-dir: ./out/
+          # Destination on Hostinger. For the PRIMARY domain use /public_html/ .
+          # For an addon domain/subdomain use e.g. /public_html/konvix.shop/ or
+          # /domains/konvix.shop/public_html/ (check hPanel -> File Manager).
+          server-dir: /public_html/
+          # Wipe removed files so old builds don't linger (safe: this dir only holds the app)
+          dangerous-clean-slate: true

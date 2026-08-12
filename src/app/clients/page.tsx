@@ -101,7 +101,7 @@ export default function ClientsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              onClick={() => router.push(`/clients/${client.id}`)}
+              onClick={() => router.push(`/clients/view?id=${client.id}`)}
               className="card group hover:shadow-glow cursor-pointer transition-all hover:scale-105"
             >
               <div className="flex items-start justify-between mb-4">

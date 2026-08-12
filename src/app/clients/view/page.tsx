@@ -60,7 +60,7 @@ const invoices = [
   { id: 'INV-003', date: '2024-08-01', amount: 100000, status: 'pending' },
 ]
 
-export default function ClientProfilePage({ params }: { params: { id: string } }) {
+export default function ClientProfilePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')

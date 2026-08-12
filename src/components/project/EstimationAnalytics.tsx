@@ -3,7 +3,9 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { TrendingUp, Plus, X, BarChart3, Target } from 'lucide-react'
 import { useState } from 'react'
-import Chart from 'react-apexcharts'
+import dynamic from 'next/dynamic'
+
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 interface CompletedProject {
   id: number

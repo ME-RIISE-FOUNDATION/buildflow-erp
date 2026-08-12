@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
   BarChart3,
@@ -34,7 +35,9 @@ import Calendar from '@/components/project/Calendar'
 import EstimationAnalytics from '@/components/project/EstimationAnalytics'
 import SummaryCards from '@/components/project/SummaryCards'
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+function ProjectDetailContent() {
+  const searchParams = useSearchParams()
+  const params = { id: searchParams.get('id') || '1' }
   const [activeSection, setActiveSection] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -175,5 +178,13 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         {renderContent()}
       </motion.div>
     </div>
+  )
+}
+
+export default function ProjectDetailPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProjectDetailContent />
+    </Suspense>
   )
 }
