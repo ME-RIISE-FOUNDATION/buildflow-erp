@@ -1,0 +1,10 @@
+# BuildFlow ERP (PHP) - minimal, safe config for Hostinger
+
+DirectoryIndex index.php index.html
+
+# Force HTTPS (guarded so it can't 500 if mod_rewrite is missing)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
