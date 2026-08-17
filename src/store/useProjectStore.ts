@@ -63,6 +63,25 @@ const defaultProjects: Project[] = []
 
 const STORAGE_KEY = 'buildflow_projects'
 
+// Shared server sync (PHP endpoint backed by MySQL) so data follows you
+// across devices. Falls back to localStorage-only if the server is unreachable.
+const STATE_URL = process.env.NEXT_PUBLIC_STATE_URL || '/state.php'
+const STATE_TOKEN = process.env.NEXT_PUBLIC_STATE_TOKEN || 'buildflow-secret-8f3k2'
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+const saveToServer = (projects: Project[], selectedId: number | null) => {
+  if (typeof window === 'undefined') return
+  if (saveTimer) clearTimeout(saveTimer)
+  // Debounce so rapid edits result in a single write
+  saveTimer = setTimeout(() => {
+    fetch(STATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth': STATE_TOKEN },
+      body: JSON.stringify({ projects, selectedProjectId: selectedId }),
+    }).catch(() => {})
+  }, 600)
+}
+
 const saveToStorage = (projects: Project[], selectedId: number | null) => {
   if (typeof window !== 'undefined') {
     try {
@@ -73,6 +92,8 @@ const saveToStorage = (projects: Project[], selectedId: number | null) => {
     } catch (error) {
       console.error('Failed to save to localStorage:', error)
     }
+    // Also push to the shared server
+    saveToServer(projects, selectedId)
   }
 }
 
@@ -98,8 +119,33 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
     selectedProjectId: initial.selectedProjectId,
 
     loadFromStorage: () => {
+      // 1) Instant: hydrate from the local cache
       const data = loadFromStorage()
       set({ projects: data.projects, selectedProjectId: data.selectedProjectId })
+
+      // 2) Then: pull the shared data from the server and overwrite
+      if (typeof window !== 'undefined') {
+        fetch(STATE_URL, { cache: 'no-store' })
+          .then(r => (r.ok ? r.json() : null))
+          .then(remote => {
+            if (remote && Array.isArray(remote.projects)) {
+              try {
+                localStorage.setItem(
+                  STORAGE_KEY,
+                  JSON.stringify({
+                    projects: remote.projects,
+                    selectedProjectId: remote.selectedProjectId ?? null,
+                  })
+                )
+              } catch {}
+              set({
+                projects: remote.projects,
+                selectedProjectId: remote.selectedProjectId ?? get().selectedProjectId,
+              })
+            }
+          })
+          .catch(() => {})
+      }
     },
 
     setSelectedProjectId: (id: number | null) => {
